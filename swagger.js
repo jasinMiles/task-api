@@ -11,11 +11,16 @@ const options = {
         "A REST API for managing tasks with JWT authentication and user ownership."
     },
     servers: [
-      {
-        url: "http://localhost:5001",
-        description: "Local development server"
-      }
-    ],
+  {
+    url: "https://task-api-nbe4.onrender.com",
+    description: "Production server"
+  },
+  {
+    url: "http://localhost:5001",
+    description: "Local development server"
+  }
+],
+    
     components: {
       securitySchemes: {
         bearerAuth: {
