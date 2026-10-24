@@ -9,6 +9,9 @@
     {
       "name": "Register",
       "request": {
+        "auth": {
+          "type": "noauth"
+        },
         "method": "POST",
         "header": [],
         "body": {
@@ -41,20 +44,13 @@
       "name": "Login",
       "request": {
         "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWRjMDFkNjg4ZDA5NjgyMzViMzRjNzQiLCJpYXQiOjE3OTI4MDMzMzIsImV4cCI6MTc5Mjg4OTczMn0.NDKLGehfdN2TLEu0oPvd5VEW2_yDKJ3s2RCFfovx3HA",
-              "type": "string"
-            }
-          ]
+          "type": "noauth"
         },
         "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"testit@example.com\",\r\n  \"password\": \"TestPassword123!\"\r\n}\r\n",
+          "raw": "{\r\n  \"email\": \"testit@example.com\",\r\n  \"password\": \"TestPassword123!\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -86,7 +82,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWRjMDFkNjg4ZDA5NjgyMzViMzRjNzQiLCJpYXQiOjE3OTI4MDMzMzIsImV4cCI6MTc5Mjg4OTczMn0.NDKLGehfdN2TLEu0oPvd5VEW2_yDKJ3s2RCFfovx3HA",
+              "value": "",
               "type": "string"
             }
           ]
@@ -95,7 +91,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"title\": \"Learn Postman\",\r\n  \"description\": \"Test the Task API using Postman\",\r\n  \"status\": \"pending\"\r\n}",
+          "raw": "{\r\n  \"title\": \"new Learn Postman\",\r\n  \"description\": \"new Test the Task API using Postman\",\r\n  \"status\": \"pending\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -126,7 +122,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWRjMDFkNjg4ZDA5NjgyMzViMzRjNzQiLCJpYXQiOjE3OTI4MDMzMzIsImV4cCI6MTc5Mjg4OTczMn0.NDKLGehfdN2TLEu0oPvd5VEW2_yDKJ3s2RCFfovx3HA",
+              "value": "",
               "type": "string"
             }
           ]
@@ -157,7 +153,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWRjMDFkNjg4ZDA5NjgyMzViMzRjNzQiLCJpYXQiOjE3OTI4MDMzMzIsImV4cCI6MTc5Mjg4OTczMn0.NDKLGehfdN2TLEu0oPvd5VEW2_yDKJ3s2RCFfovx3HA",
+              "value": "",
               "type": "string"
             }
           ]
@@ -189,7 +185,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWRjMDFkNjg4ZDA5NjgyMzViMzRjNzQiLCJpYXQiOjE3OTI4MDMzMzIsImV4cCI6MTc5Mjg4OTczMn0.NDKLGehfdN2TLEu0oPvd5VEW2_yDKJ3s2RCFfovx3HA",
+              "value": "",
               "type": "string"
             }
           ]
@@ -230,7 +226,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWRjMDFkNjg4ZDA5NjgyMzViMzRjNzQiLCJpYXQiOjE3OTI4MDMzMzIsImV4cCI6MTc5Mjg4OTczMn0.NDKLGehfdN2TLEu0oPvd5VEW2_yDKJ3s2RCFfovx3HA",
+              "value": "",
               "type": "string"
             }
           ]
@@ -238,7 +234,7 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "https://task-api-nbe4.onrender.com/api/tasks/6adc044588d0968235b34c76",
+          "raw": "https://task-api-nbe4.onrender.com/api/tasks/6adc02f288d0968235b34c75",
           "protocol": "https",
           "host": [
             "task-api-nbe4",
@@ -248,11 +244,14 @@
           "path": [
             "api",
             "tasks",
-            "6adc044588d0968235b34c76"
+            "6adc02f288d0968235b34c75"
           ]
         }
       },
       "response": []
     }
-  ]
+  ],
+  "auth": {
+    "type": "bearer"
+  }
 }
