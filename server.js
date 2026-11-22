@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 const allowedOrigins = (
-  process.env.CLIENT_URL || "http://localhost:5173"
+  process.env.CLIENT_URL || "https://task-manager-fullstack-xi-eight.vercel.app/"
 )
   .split(",")
   .map((origin) => origin.trim());
