@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 
 const express = require("express");
@@ -5,95 +6,98 @@ const mongoose = require("mongoose");
 const Task = require("./models/Task");
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
+
 const {
   createTaskValidation,
   updateTaskValidation,
   validateRequest
 } = require("./validators/taskValidator");
+
 const errorMiddleware = require("./middleware/errorMiddleware");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
 
 const app = express();
 
-// Allow the deployed frontend (and local Vite during development).
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
-  .split(',')
+// PORT configuration for Render and local development
+const PORT = process.env.PORT || 5000;
+
+// CORS configuration
+const allowedOrigins = (
+  process.env.CLIENT_URL || "http://localhost:5173"
+)
+  .split(",")
   .map((origin) => origin.trim());
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
-  if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-    if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+  if (
+    !origin ||
+    allowedOrigins.includes("*") ||
+    allowedOrigins.includes(origin)
+  ) {
+    if (origin) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
   }
 
-  res.setHeader('Vary', 'Origin');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Vary", "Origin");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,DELETE,OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
 
-  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
   next();
 });
 
+// Middleware
 app.use(express.json());
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger documentation
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
 
+// Health check
 app.get("/health", (req, res) => {
-  console.log("Health route reached");
-
   res.status(200).json({
     status: "OK"
   });
 });
+
+// Root route
+app.get("/", (req, res) => {
+  res.json({
+    message: "Task API is running"
+  });
+});
+
+// Authentication routes
 app.use("/api/auth", authRoutes);
 
-mongoose.connect(process.env.MONGO_URI)
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected successfully");
   })
   .catch((error) => {
     console.error("MongoDB connection failed:", error.message);
   });
-// Routes
 
 
-/**
- * @swagger
- * /api/tasks:
- *   post:
- *     summary: Create a task for the authenticated user
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - title
- *               - description
- *             properties:
- *               title:
- *                 type: string
- *                 example: Learn Express
- *               description:
- *                 type: string
- *                 example: Build a REST API
- *               status:
- *                 type: string
- *                 enum: [pending, in-progress, completed]
- *                 default: pending
- *     responses:
- *       201:
- *         description: Task created successfully
- *       401:
- *         description: Missing or invalid token
- */
-
+// CREATE TASK
 app.post(
   "/api/tasks",
   authMiddleware,
@@ -102,11 +106,11 @@ app.post(
   async (req, res, next) => {
     try {
       const task = await Task.create({
-  title: req.body.title,
-  description: req.body.description,
-  status: req.body.status,
-  user: req.user.userId
-});
+        title: req.body.title,
+        description: req.body.description,
+        status: req.body.status,
+        user: req.user.userId
+      });
 
       res.status(201).json({
         message: "Task created successfully",
@@ -118,76 +122,31 @@ app.post(
   }
 );
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "Task API is running"
-  });
-});
-
-
-/**
- * @swagger
- * /api/tasks:
- *   get:
- *     summary: Get tasks belonging to the authenticated user
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Tasks retrieved successfully
- *       401:
- *         description: Missing or invalid token
- */
-
 
 // GET ALL TASKS
-app.get("/api/tasks", authMiddleware, async (req, res) => {
+app.get("/api/tasks", authMiddleware, async (req, res, next) => {
   try {
-    const tasks = await Task.find({ user: req.user.userId });
+    const tasks = await Task.find({
+      user: req.user.userId
+    });
+
     res.status(200).json({
       count: tasks.length,
-      tasks: tasks
+      tasks
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch tasks",
-      error: error.message
-    });
+    next(error);
   }
 });
 
 
-/**
- * @swagger
- * /api/tasks/{id}:
- *   get:
- *     summary: Get one task owned by the authenticated user
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Task ID
- *     responses:
- *       200:
- *         description: Task retrieved successfully
- *       404:
- *         description: Task not found
- */
-
-
- // GET ONE TASK
+// GET ONE TASK
 app.get("/api/tasks/:id", authMiddleware, async (req, res, next) => {
   try {
     const task = await Task.findOne({
-  _id: req.params.id,
-  user: req.user.userId
-});
+      _id: req.params.id,
+      user: req.user.userId
+    });
 
     if (!task) {
       return res.status(404).json({
@@ -196,52 +155,15 @@ app.get("/api/tasks/:id", authMiddleware, async (req, res, next) => {
     }
 
     res.status(200).json({
-      task: task
+      task
     });
   } catch (error) {
-  next(error);
-}
+    next(error);
+  }
 });
 
 
-/**
- * @swagger
- * /api/tasks/{id}:
- *   put:
- *     summary: Update a task owned by the authenticated user
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Task ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               description:
- *                 type: string
- *               status:
- *                 type: string
- *                 enum: [pending, in-progress, completed]
- *     responses:
- *       200:
- *         description: Task updated successfully
- *       404:
- *         description: Task not found
- */
-
-
- // UPDATE TASK
+// UPDATE TASK
 app.put(
   "/api/tasks/:id",
   authMiddleware,
@@ -250,20 +172,20 @@ app.put(
   async (req, res, next) => {
     try {
       const task = await Task.findOneAndUpdate(
-  {
-    _id: req.params.id,
-    user: req.user.userId
-  },
-  {
-    title: req.body.title,
-    description: req.body.description,
-    status: req.body.status
-  },
-  {
-    new: true,
-    runValidators: true
-  }
-);
+        {
+          _id: req.params.id,
+          user: req.user.userId
+        },
+        {
+          title: req.body.title,
+          description: req.body.description,
+          status: req.body.status
+        },
+        {
+          new: true,
+          runValidators: true
+        }
+      );
 
       if (!task) {
         return res.status(404).json({
@@ -282,36 +204,13 @@ app.put(
 );
 
 
-/**
- * @swagger
- * /api/tasks/{id}:
- *   delete:
- *     summary: Delete a task owned by the authenticated user
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Task ID
- *     responses:
- *       200:
- *         description: Task deleted successfully
- *       404:
- *         description: Task not found
- */
-
-
- // DELETE TASK
+// DELETE TASK
 app.delete("/api/tasks/:id", authMiddleware, async (req, res, next) => {
   try {
     const task = await Task.findOneAndDelete({
-  _id: req.params.id,
-  user: req.user.userId
-});
+      _id: req.params.id,
+      user: req.user.userId
+    });
 
     if (!task) {
       return res.status(404).json({
@@ -329,7 +228,11 @@ app.delete("/api/tasks/:id", authMiddleware, async (req, res, next) => {
 });
 
 
+// Error handling middleware (must come after routes)
+app.use(errorMiddleware);
+
+
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-app.use(errorMiddleware);
